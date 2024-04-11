@@ -74,7 +74,7 @@ public class Network_Manager : MonoBehaviour
 
 	void DataReceived(IAsyncResult ar)
 	{
-		Debug.Log("something receive");
+		//Debug.Log("something receive");
 		if (isSocketClosed) return;
 		
 		AsyncObject obj = (AsyncObject)ar.AsyncState;
@@ -89,7 +89,7 @@ public class Network_Manager : MonoBehaviour
 
 				JsonDocument doc = JsonDocument.Parse(Encoding.Default.GetString(receivedData));
 				JsonElement root = doc.RootElement;
-				Debug.Log("받은 문자열  : " + root.GetRawText());
+				//Debug.Log("받은 문자열  : " + root.GetRawText());
 
 
 				string _action = root.GetProperty("action").GetString();
@@ -98,23 +98,48 @@ public class Network_Manager : MonoBehaviour
 					bool _val = root.GetProperty("val").GetBoolean();
 					if (_val)   //회원가입 성공
 					{
-						mainThreadWorkQueue.Enqueue(() => UI_Manager.Instance.JoinSuccess());
+						mainThreadWorkQueue.Enqueue(() => Login_Manager.Instance.JoinSuccess());
 					}
 					else        //회원가입 실패
 					{
-						mainThreadWorkQueue.Enqueue(() => UI_Manager.Instance.JoinFail());
+						mainThreadWorkQueue.Enqueue(() => Login_Manager.Instance.JoinFail());
 
 					}
 				} else if (_action == "LOGIN_RESULT") { //로그인 결과
 					bool _val = root.GetProperty("val").GetBoolean();
 					if (_val)   //로그인 성공.
 					{
-						mainThreadWorkQueue.Enqueue(() => UI_Manager.Instance.LoginSuccess());
+						mainThreadWorkQueue.Enqueue(() => Login_Manager.Instance.LoginSuccess());
 					}
 					else        //로그인 실패
 					{
-						mainThreadWorkQueue.Enqueue(() => UI_Manager.Instance.ShowSignWindow(false));
+						mainThreadWorkQueue.Enqueue(() => Login_Manager.Instance.ShowSignWindow(false));
 					}
+				} else if (_action == "DATA_ALL_USER") {
+					JsonElement usersElement = root.GetProperty("val");
+
+					mainThreadWorkQueue.Enqueue(() => Chat_Manager.Instance.Reset_User_List());
+					
+
+					foreach (JsonElement userElement in usersElement.EnumerateArray())
+					{
+						string userId = userElement.GetProperty("user_id").GetString();
+						string isFriendWithA = userElement.GetProperty("is_friend_with_A").GetString();
+						int numFriends = userElement.GetProperty("num_friends").GetInt32();
+						int numFollowers = userElement.GetProperty("num_followers").GetInt32();
+						string joinDate = userElement.GetProperty("join_date").GetString();
+						string is_following_A = userElement.GetProperty("is_following_A").GetString();
+
+						// 사용자 정보를 콘솔(또는 디버그 로그)에 출력
+						Debug.Log($"User ID: {userId}, Is Friend With A: {isFriendWithA}, Number of Friends: {numFriends}, Number of Followers: {numFollowers}, Join Date: {joinDate}, is_following_A : {is_following_A}");
+
+						// 여기서 받은 사용자 정보를 바탕으로 필요한 처리 수행
+						mainThreadWorkQueue.Enqueue(() => Chat_Manager.Instance.Add_User_list(userId, isFriendWithA, numFriends, numFollowers, joinDate, is_following_A));
+						
+
+
+					}
+
 				}
 				
 
@@ -231,6 +256,15 @@ public class Network_Manager : MonoBehaviour
 			"\"action\" : \"" + "LOGIN_TRY" + "\" " +
 			",\"id\" : \"" + id + "\" " +
 			",\"pw\" : \"" + hashedPassword + "\" " +
+			"}";
+		SendMessages(str_message);
+	}
+
+	public void GetAllData()
+	{
+		Debug.Log("flag3");
+		string str_message = "{" +
+			"\"action\" : \"" + "GET_ALL_DATA" + "\" " +
 			"}";
 		SendMessages(str_message);
 	}

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class UI_Manager : MonoBehaviour
+public class Login_Manager : MonoBehaviour
 {
 	#region Components
 
@@ -38,9 +38,14 @@ public class UI_Manager : MonoBehaviour
 	[SerializeField]
 	GameObject fail_Panel;
 
+	
+
+	
+
+
 	#endregion
 
-	public static UI_Manager Instance { get; private set; }
+	public static Login_Manager Instance { get; private set; }
 
 	private void Awake()
 	{
@@ -51,7 +56,6 @@ public class UI_Manager : MonoBehaviour
 		else
 		{
 			Instance = this;
-			DontDestroyOnLoad(gameObject);
 		}
 	}
 
