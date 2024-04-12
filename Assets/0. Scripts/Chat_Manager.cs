@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Chat_Manager : MonoBehaviour
@@ -225,6 +227,9 @@ public class Chat_Manager : MonoBehaviour
 
 	public void Add_Friend_Request_list(string userId, string residate, string status)
 	{
+		if (status != "pending") return;
+
+
 		var obj = Instantiate(Prefab_Friend_Request_Block);
 		obj.transform.SetParent(Scroll_Content_Friend_Request.transform, false);
 
@@ -249,6 +254,7 @@ public class Chat_Manager : MonoBehaviour
 	public void DeleteFriend(string _id)
 	{
 		Debug.Log(_id + "친구 삭제");
+		Network_Manager.Instance.Delete_Friend(_id);
 	}
 
 	//친구DM
@@ -261,12 +267,14 @@ public class Chat_Manager : MonoBehaviour
 	public void AcceptFriend(string _id)
 	{
 		Debug.Log(_id + " AcceptFriend");
+		Network_Manager.Instance.Accept_Friend(_id);
 	}
 
 	//친구거절
 	public void DenyFriend(string _id)
 	{
 		Debug.Log(_id + " DenyFriend");
+		Network_Manager.Instance.Deny_Friend(_id);
 	}
 
 	//친구요청 보내기
@@ -283,6 +291,18 @@ public class Chat_Manager : MonoBehaviour
 		Network_Manager.Instance.Request_Follow(_id);
 	}
 
+	//로그아웃
+	public void RequestLogout()
+	{
+		Debug.Log("로그아웃 요청");
+		Network_Manager.Instance.Logout();
+	}
+
+	public void GoLogout()
+	{
+		StopAllCoroutines();
+		SceneManager.LoadScene(0);
+	}
 
 
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class Login_Manager : MonoBehaviour
 {
@@ -65,6 +66,13 @@ public class Login_Manager : MonoBehaviour
 		Debug.Log("Onclick_JoinBtn" + input_join_id.text + " " + input_join_pw1.text + " " +input_join_pw2.text + " ");
 
 
+		//유효성 검사
+		if (!IsValidUsername(input_join_id.text) || !IsValidUsername(input_join_pw1.text))
+		{
+			ShowSignWindow(false);
+			return;
+		}
+
 		//비밀번호 확인이 다르면 return
 		if (input_join_pw1.text != input_join_pw2.text)
 		{
@@ -78,15 +86,31 @@ public class Login_Manager : MonoBehaviour
 			return;
 		}
 
+		
+
 
 		Network_Manager.Instance.JoinTry(input_join_id.text, input_join_pw1.text);
 		
+	}
+
+	// 사용자 이름 유효성 검증
+	private bool IsValidUsername(string username)
+	{
+		return username.All(char.IsLetterOrDigit);
 	}
 
 	//로그인 버튼 클릭.
 	public void Onlick_LoginTryBtn()
 	{
 		Debug.Log("Onlick_LoginTryBtn "+ input_login_id.text + " " + input_login_pw.text);
+
+		//유효성 검사
+		if (!IsValidUsername(input_login_id.text) || !IsValidUsername(input_login_pw.text))
+		{
+			ShowSignWindow(false);
+			return;
+		}
+
 		//아이디, 비밀번호 글자수 제한
 		if (input_login_id.text.Length < 3 || input_login_pw.text.Length < 3 || input_login_id.text.Length > 10 || input_login_pw.text.Length > 10)
 		{
@@ -172,6 +196,8 @@ public class Login_Manager : MonoBehaviour
 		StopAllCoroutines();
 		SceneManager.LoadScene(1);
 	}
+
+
 
 
 

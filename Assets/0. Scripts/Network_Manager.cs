@@ -12,6 +12,7 @@ using System.Collections.Concurrent;
 
 
 
+
 public class AsyncObject
 {
 	public byte[] Buffer;
@@ -41,10 +42,10 @@ public class Network_Manager : MonoBehaviour
 	public Socket socket;
 	bool isSocketClosed = false;
 
-	//서버 정보
+	//서버 정보.
 	//string m_ip = "127.0.0.1";
 	string m_ip = "210.179.17.24";
-	int m_port = 60000;
+	int m_port = 60006;
 
 
 	public void Connect()
@@ -150,7 +151,9 @@ public class Network_Manager : MonoBehaviour
 
 						}
 
-					} else if (_action == "DATA_FRIEND_LIST") {
+					}
+					else if (_action == "DATA_FRIEND_LIST")
+					{
 						JsonElement usersElement = root.GetProperty("val");
 
 						mainThreadWorkQueue.Enqueue(() => Chat_Manager.Instance.Reset_Friend_List());
@@ -186,6 +189,10 @@ public class Network_Manager : MonoBehaviour
 
 						}
 
+					}
+					else if (_action == "LOGOUT_COMPLETE")
+					{
+						mainThreadWorkQueue.Enqueue(() => Chat_Manager.Instance.GoLogout());
 					}
 
 				}
@@ -332,6 +339,41 @@ public class Network_Manager : MonoBehaviour
 		string str_message = "{" +
 			"\"action\" : \"" + "REQUEST_FRIEND" + "\" " +
 			",\"id\" : \"" + _id + "\" " +
+			"}";
+		SendMessages(str_message);
+	}
+
+	public void Accept_Friend(string _id)
+	{
+		string str_message = "{" +
+			"\"action\" : \"" + "ACCEPT_FRIEND" + "\" " +
+			",\"id\" : \"" + _id + "\" " +
+			"}";
+		SendMessages(str_message);
+	}
+
+	public void Deny_Friend(string _id)
+	{
+		string str_message = "{" +
+			"\"action\" : \"" + "DENY_FRIEND" + "\" " +
+			",\"id\" : \"" + _id + "\" " +
+			"}";
+		SendMessages(str_message);
+	}
+
+	public void Delete_Friend(string _id)
+	{
+		string str_message = "{" +
+			"\"action\" : \"" + "DELETE_FRIEND" + "\" " +
+			",\"id\" : \"" + _id + "\" " +
+			"}";
+		SendMessages(str_message);
+	}
+
+	public void Logout()
+	{
+		string str_message = "{" +
+			"\"action\" : \"" + "LOGOUT" + "\" " +
 			"}";
 		SendMessages(str_message);
 	}
