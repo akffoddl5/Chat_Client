@@ -29,6 +29,18 @@ public class Chat_Manager : MonoBehaviour
 	[SerializeField]
 	GameObject Scroll_Content_UserData;
 
+	[SerializeField]
+	GameObject Prefab_Friend_Block;
+
+	[SerializeField]
+	GameObject Scroll_Content_Friend;
+
+	[SerializeField]
+	GameObject Prefab_Friend_Request_Block;
+
+	[SerializeField]
+	GameObject Scroll_Content_Friend_Request;
+
 
 	#endregion
 
@@ -119,8 +131,29 @@ public class Chat_Manager : MonoBehaviour
 		}
 	}
 
-	
-	public void Add_User_list(string userId, string isFriendWithA, int numFriends, int numFollower, string joinDate, string is_following_A)
+	//친구 리스트 초기화
+	public void Reset_Friend_List()
+	{
+		foreach (Transform child in Scroll_Content_Friend.transform)
+		{
+			// 자식 오브젝트를 씬에서 제거
+			Destroy(child.gameObject);
+		}
+	}
+
+	//친구요청 리스트 초기화
+	public void Reset_Friend_Request_List()
+	{
+		foreach (Transform child in Scroll_Content_Friend_Request.transform)
+		{
+			// 자식 오브젝트를 씬에서 제거
+			Destroy(child.gameObject);
+		}
+	}
+
+
+	public void Add_User_list(string userId, string isFriendWithA, int numFriends, int numFollower,
+		string joinDate, string is_following_A, string friend_request_status)
 	{
 
 		var obj = Instantiate(Prefab_UserData_Block);
@@ -144,7 +177,7 @@ public class Chat_Manager : MonoBehaviour
 
 		// 친구요청 버튼 활성화 여부
 		var buttonRequestFriend = obj.transform.Find("Button_Request_Friend").GetComponent<Button>();
-		if (isFriendWithA == "Yes")
+		if (isFriendWithA == "Yes" || friend_request_status != "None")
 		{
 			buttonRequestFriend.gameObject.SetActive(false);
 		}
@@ -168,17 +201,86 @@ public class Chat_Manager : MonoBehaviour
 
 	}
 
+	public void Add_Friend_list(string userId, string residate)
+	{
+		var obj = Instantiate(Prefab_Friend_Block);
+		obj.transform.SetParent(Scroll_Content_Friend.transform, false);
+
+		// 유저 ID 텍스트 설정.
+		var textUserID = obj.transform.Find("Text_ID").GetComponent<Text>();
+		textUserID.text = "ID: " + userId;
+
+		// 가입 날짜 텍스트 설정
+		var textResidate = obj.transform.Find("Text_Residate").GetComponent<Text>();
+		textResidate.text = "가입 날짜: " + residate.Substring(0, 10); ;
+
+		// 친구삭제 버튼
+		var buttonDeleteFriend = obj.transform.Find("Button_Friend_Delete").GetComponent<Button>();
+		buttonDeleteFriend.onClick.AddListener(() => DeleteFriend(userId));
+
+		// 친구에게 DM
+		var Button_Friend_DM = obj.transform.Find("Button_Friend_DM").GetComponent<Button>();
+		Button_Friend_DM.onClick.AddListener(() => DMFriend(userId));
+	}
+
+	public void Add_Friend_Request_list(string userId, string residate, string status)
+	{
+		var obj = Instantiate(Prefab_Friend_Request_Block);
+		obj.transform.SetParent(Scroll_Content_Friend_Request.transform, false);
+
+		// 유저 ID 텍스트 설정.
+		var textUserID = obj.transform.Find("Text_ID").GetComponent<Text>();
+		textUserID.text = "ID: " + userId;
+
+		// 가입 날짜 텍스트 설정
+		var textResidate = obj.transform.Find("Text_Residate").GetComponent<Text>();
+		textResidate.text = "가입 날짜: " + residate.Substring(0, 10); ;
+
+		// 친구수락 버튼
+		var Button_Accept = obj.transform.Find("Button_Accept").GetComponent<Button>();
+		Button_Accept.onClick.AddListener(() => AcceptFriend(userId));
+
+		// 친구거절 버튼
+		var Button_Deny = obj.transform.Find("Button_Deny").GetComponent<Button>();
+		Button_Deny.onClick.AddListener(() => DenyFriend(userId));
+	}
+
+	//친구삭제
+	public void DeleteFriend(string _id)
+	{
+		Debug.Log(_id + "친구 삭제");
+	}
+
+	//친구DM
+	public void DMFriend(string _id)
+	{
+		Debug.Log(_id + " DMFriend");
+	}
+
+	//친구수락
+	public void AcceptFriend(string _id)
+	{
+		Debug.Log(_id + " AcceptFriend");
+	}
+
+	//친구거절
+	public void DenyFriend(string _id)
+	{
+		Debug.Log(_id + " DenyFriend");
+	}
+
 	//친구요청 보내기
 	public void RequestFriend(string _id)
 	{
 		Debug.Log(_id + "에게 친구 요청");
+		Network_Manager.Instance.Request_Friend(_id);
 	}
 
 	//팔로우요청 보내기
 	public void RequestFollow(string _id)
 	{
 		Debug.Log(_id + "에게 팔로우 요청");
-
+		Network_Manager.Instance.Request_Follow(_id);
 	}
 
 
